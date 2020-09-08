@@ -1,0 +1,14 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+
+# POI API owners.
+/apis/poi/ @koxkox @mortenhbakken
+
+# Trips API owners.
+/apis/trips/ @haiduc77 @ondrej-marinak
+
+# UserJava API owners.
+/apis/user-java/ @dorin-androne @knutsvendsen
+
+# UserProfile API owners.
+/apis/userprofile/ @knutsvendsen @Lornis
