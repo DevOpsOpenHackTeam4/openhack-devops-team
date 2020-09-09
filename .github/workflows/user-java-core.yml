@@ -34,7 +34,7 @@ jobs:
             dep ensure
         fi
     - name: Build
-      working-directory: 'apis/user-java'
+      working-directory: 'apis/user-java/src/main/resources'
       run: go build -v .
       
     - name: Test
