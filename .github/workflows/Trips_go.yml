@@ -35,10 +35,10 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: go build apis/trips/* -v .
       
     - name: Run
-      run: go run main.go
+      run: go run apis/trips/main.go
 
     - name: Test
-      run: go test ./tests -v .
+      run: go test apis/trips/tests -v .
