@@ -1,4 +1,4 @@
-name: .NET Core
+name: POI (.NET Core)
 
 on:
   push:
