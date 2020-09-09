@@ -34,12 +34,12 @@ jobs:
             dep ensure
         fi
     - name: Build
-      working-directory: 'apis/user-java/src/main/resources'
-      run: go build -v .
+      working-directory: 'apis/user-java'
+      run: mvn clean install
       
     - name: Test
-      working-directory: 'apis/user-java/src/tests'
-      run: go test -v .
+      working-directory: 'apis/user-java/src/test/java'
+      run: mvn test
 
     - name: Create issue
       if: ${{ failure() }}
