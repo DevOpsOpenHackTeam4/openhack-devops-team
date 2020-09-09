@@ -38,9 +38,9 @@ jobs:
       working-directory: 'apis/trips'
       run: go build -v .
       
-    - name: Run
-      working-directory: 'apis/trips'
-      run: go run main.go
+#    - name: Run
+#      working-directory: 'apis/trips'
+#      run: go run main.go
 
     - name: Test
       working-directory: 'apis/trips/tests'
