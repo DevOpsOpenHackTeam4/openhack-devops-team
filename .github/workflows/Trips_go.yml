@@ -47,7 +47,7 @@ jobs:
       run: go test -v .
 
     - name: Create issue
-      if: $ {{ failure() }}
+      if: ${{ failure() }}
       uses: JasonEtco/create-an-issue@v2.4.0
       with:
         assignees: haiduc77
