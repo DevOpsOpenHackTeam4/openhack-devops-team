@@ -35,7 +35,7 @@ jobs:
         fi
 
     - name: Build
-      run: go build apis/trips/* -v .
+      run: go build apis/trips/Dockerfile -v .
       
     - name: Run
       run: go run apis/trips/main.go
