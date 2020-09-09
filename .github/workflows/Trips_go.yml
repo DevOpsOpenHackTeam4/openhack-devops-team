@@ -45,3 +45,9 @@ jobs:
     - name: Test
       working-directory: 'apis/trips/tests'
       run: go test -v .
+
+    - name: Create issue
+      if: $ {{ failure() }}
+      uses: JasonEtco/create-an-issue@v2.4.0
+      with:
+        assignees: haiduc77
