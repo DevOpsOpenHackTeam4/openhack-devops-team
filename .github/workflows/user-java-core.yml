@@ -3,12 +3,17 @@ name: .NET Core
 on:
   push:
     branches: [ master ]
+    paths: 
+    - 'apis/user-java/**'
   pull_request:
     branches: [ master ]
-
+    paths:
+    - 'apis/user-java/**'
+      
 jobs:
   build:
 
+    name: Build now
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +25,8 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
+      working-directory: 'apis/user-java'
       run: dotnet build --configuration Release --no-restore
     - name: Test
+      working-directory: 'apis/user-java/src/tests'
       run: dotnet test --no-restore --verbosity normal
