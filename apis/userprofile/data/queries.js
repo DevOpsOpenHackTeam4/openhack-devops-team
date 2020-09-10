@@ -56,6 +56,7 @@ MaxSpeed float(53),\
 Deleted bit\
 ) AS JSON`;
 
+//these are the exports
 exports.SELECT_USER_PROFILE_BY_ID=
  'select * from userprofiles where id = @user_profile_id FOR JSON PATH';
 
