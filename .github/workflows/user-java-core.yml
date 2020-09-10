@@ -1,4 +1,4 @@
-name: Go2
+name: UserJava CI/CD
 
 on:
   push:
@@ -54,7 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 'Login via Azure CLI'
-      if: ${{ success() && }}
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
