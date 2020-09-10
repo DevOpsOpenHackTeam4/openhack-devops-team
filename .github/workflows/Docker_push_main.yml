@@ -38,4 +38,17 @@ jobs:
           run: |
             docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
+            
+        - uses: azure/webapps-deploy@v2
+          with:
+            app-name: 'openhackvqp9t502userjava-staging'
+            images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}            
+            
+        - name: Azure CLI script
+          uses: azure/CLI@v1
+          with:
+            azcliversion: 2.0.72
+            inlineScript: |
+              az webapp deployment slot swap  -g openhackvqp9t502rg -n openhackvqp9t502userjava --slot staging \
+              --target-slot production          
 
