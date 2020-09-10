@@ -1,4 +1,4 @@
-name: Go
+name: Trips CI/CD
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         go-version: ^1.13
       id: go
 
-    - name: Check out code into the Go module directory
+    - name: Check out code into the Trips directory
       uses: actions/checkout@v2
 
     - name: Get dependencies
@@ -38,10 +38,6 @@ jobs:
       working-directory: 'apis/trips'
       run: go build -v .
       
-#    - name: Run
-#      working-directory: 'apis/trips'
-#      run: go run main.go
-
     - name: Test
       working-directory: 'apis/trips/tests'
       run: go test -v .
@@ -53,3 +49,58 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         assignees: haiduc77
+
+  deploy:
+    needs: build
+    if: ${{ success() && github.event_name != 'pull_request' }}
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+    steps:
+    - name: Check out code into the Trips directory
+      uses: actions/checkout@v2
+      
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: 'Build and push image'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Run docker
+      working-directory: 'apis/trips'
+      run: |
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-trips:${{ github.run_number }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-trips:${{ github.run_number }}
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'openhackvqp9t502trips'
+        images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-trips:${{ github.run_number }}
+        slot-name: 'staging'
+
+    - name: Check the deployed service URL
+      uses: jtalk/url-health-check-action@v1.2
+      with:
+        # Check the following URLs one by one sequentially
+        url: https://openhackvqp9t502trips-staging.azurewebsites.net/api/healthcheck/trips
+        # Follow redirects, or just report success on 3xx status codes
+        follow-redirect: no # Optional, defaults to "no"
+        # Fail this action after this many failed attempts
+        max-attempts: 3 # Optional, defaults to 1
+        # Delay between retries
+        retry-delay: 5s # Optional, only applicable to max-attempts > 1:              
+
+    - name: Azure CLI script
+      if: ${{ success() }}
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.0.72
+        inlineScript: |
+          az webapp deployment slot swap  -g openhackvqp9t502rg -n openhackvqp9t502trips --slot staging \
+          --target-slot production       
