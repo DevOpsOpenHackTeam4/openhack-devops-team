@@ -62,10 +62,12 @@ jobs:
             retry-delay: 5s # Optional, only applicable to max-attempts > 1:              
             
         - name: Azure CLI script
+          if: ${{ success() }}
           uses: azure/CLI@v1
           with:
             azcliversion: 2.0.72
             inlineScript: |
               az webapp deployment slot swap  -g openhackvqp9t502rg -n openhackvqp9t502userjava --slot staging \
-              --target-slot production          
+              --target-slot production
+               
 
