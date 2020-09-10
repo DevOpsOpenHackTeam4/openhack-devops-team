@@ -51,6 +51,7 @@ jobs:
       with:
         assignees: dorin-androne
   deploy:
+    needs: build
     if: ${{ success() && github.event_name != 'pull_request' }}
     name: Deploy to Azure
     runs-on: ubuntu-latest
