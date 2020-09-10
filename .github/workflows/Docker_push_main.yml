@@ -36,17 +36,17 @@ jobs:
         - name: Run docker
           working-directory: 'apis/user-java'
           run: |
-            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
+            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/api-user-java:${{ github.run_number }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/api-user-java:${{ github.run_number }}
 
         - name: 'Deploy to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
           with:
             resource-group: ${{ secrets.RESOURCE_GROUP }}
             dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
-            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
+            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/api-user-java:${{ github.run_number }}
             registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
             registry-username: ${{ secrets.REGISTRY_USERNAME }}
             registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-            name: openhackvqp9t502acr/devopsoh
+            name: openhackvqp9t502acr
             location: 'north europe'
