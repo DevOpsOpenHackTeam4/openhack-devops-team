@@ -1,2 +1,2 @@
-test workflow commit CI/CD
+test workflow commit CI/CD demo
 
