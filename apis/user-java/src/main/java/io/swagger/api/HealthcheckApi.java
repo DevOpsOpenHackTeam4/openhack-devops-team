@@ -23,7 +23,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-08-03T19:26:46.543Z")
-
+//random comment
 @Api(value = "healthcheck", description = "the healthcheck API")
 public interface HealthcheckApi {
 
