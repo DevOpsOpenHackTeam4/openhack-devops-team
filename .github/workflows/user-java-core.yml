@@ -15,6 +15,8 @@ jobs:
 
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
 
     steps:
     - name: Set up Go 1.x
@@ -52,6 +54,8 @@ jobs:
     if: ${{ success() && github.event_name != 'pull_request' }}
     name: Deploy to Azure
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
     steps:
     - name: 'Login via Azure CLI'
       uses: azure/login@v1
