@@ -8,6 +8,10 @@ on:
       imageName:
         description: 'Base name for image, should describe what is in the image'
         required: true
+        default: ''
+      healthCheckUrl:
+        description: 'Endpoint to check health status'
+        required: true
         default: '' 
         
 name: Linux_Container_Workflow
@@ -43,7 +47,19 @@ jobs:
           with:
             app-name: 'openhackvqp9t502userjava'
             images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
-            slot-name: 'staging'            
+            slot-name: 'staging'
+            
+        - name: Check the deployed service URL
+          uses: jtalk/url-health-check-action@v1.2
+          with:
+            # Check the following URLs one by one sequentially
+            url: https://openhackvqp9t502userjava-staging.azurewebsites.net/api/healthcheck/user-java
+            # Follow redirects, or just report success on 3xx status codes
+            follow-redirect: no # Optional, defaults to "no"
+            # Fail this action after this many failed attempts
+            max-attempts: 3 # Optional, defaults to 1
+            # Delay between retries
+            retry-delay: 5s # Optional, only applicable to max-attempts > 1:              
             
         - name: Azure CLI script
           uses: azure/CLI@v1
