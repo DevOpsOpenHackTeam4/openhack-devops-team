@@ -1,0 +1,103 @@
+name: User profile CI/CD
+
+on:
+  push:
+    branches: [ master ]
+    paths: 
+    - 'apis/user-profile/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'apis/user-profile/**'   
+           
+jobs:
+  build:
+
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+
+    steps:
+    - name: Set up Node 8.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^8.9
+      id: node
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+    - name: Build
+      working-directory: 'apis/user-profile'
+      run: mvn clean install
+      
+    - name: Test
+      working-directory: 'apis/user-profile'
+      run: mvn test
+                
+    - name: Create issue
+      if: ${{ failure() }}
+      uses: JasonEtco/create-an-issue@v2.4.0
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        assignees: dorin-androne
+  deploy:
+    if: ${{ success() && github.event_name != 'pull_request' }}
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+    steps:
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: 'Build and push image'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Run docker
+      working-directory: 'apis/user-java'
+      run: |
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'openhackvqp9t502userprofile'
+        images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-user-java:${{ github.run_number }}
+        slot-name: 'staging'
+
+    - name: Check the deployed service URL
+      uses: jtalk/url-health-check-action@v1.2
+      with:
+        # Check the following URLs one by one sequentially
+        url: https://openhackvqp9t502userprofile-staging.azurewebsites.net/api/healthcheck/user-profile
+        # Follow redirects, or just report success on 3xx status codes
+        follow-redirect: no # Optional, defaults to "no"
+        # Fail this action after this many failed attempts
+        max-attempts: 3 # Optional, defaults to 1
+        # Delay between retries
+        retry-delay: 5s # Optional, only applicable to max-attempts > 1:              
+
+    - name: Azure CLI script
+      if: ${{ success() }}
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.0.72
+        inlineScript: |
+          az webapp deployment slot swap  -g openhackvqp9t502rg -n openhackvqp9t502userprofile --slot staging \
+          --target-slot production           
