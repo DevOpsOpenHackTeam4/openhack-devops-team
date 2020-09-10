@@ -12,9 +12,17 @@
 #
 # For more information on GitHub Actions for Azure, refer to https://github.com/Azure/Actions
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+name: userprofile CI/CD
+
 on:
-  release:
-    types: [created]
+  push:
+    branches: [ master ]
+    paths: 
+    - 'apis/userprofile/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'apis/userprofile/**' 
 
 env:
   AZURE_WEBAPP_NAME: your-app-name    # set this to your application's name
@@ -75,7 +83,7 @@ jobs:
         docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}
     - uses: azure/webapps-deploy@v2
       with:
-        app-name: 'openhackvqp9t502userjava'
+        app-name: 'openhackvqp9t502userprofile'
         images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/devopsoh/api-userprofile:${{ github.run_number }}
         slot-name: 'staging'
 
@@ -83,7 +91,7 @@ jobs:
       uses: jtalk/url-health-check-action@v1.2
       with:
         # Check the following URLs one by one sequentially
-        url: https://openhackvqp9t502userjava-staging.azurewebsites.net/api/healthcheck/userprofile
+        url: https://openhackvqp9t502userprofile-staging.azurewebsites.net/api/healthcheck/user
         # Follow redirects, or just report success on 3xx status codes
         follow-redirect: no # Optional, defaults to "no"
         # Fail this action after this many failed attempts
@@ -97,5 +105,5 @@ jobs:
       with:
         azcliversion: 2.0.72
         inlineScript: |
-          az webapp deployment slot swap  -g openhackvqp9t502rg -n openhackvqp9t502userjava --slot staging \
+          az webapp deployment slot swap  -g openhackvqp9t502rg -n openhackvqp9t502userprofile --slot staging \
           --target-slot production           
